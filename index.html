@@ -1,0 +1,78 @@
+<!doctype html>
+<!-- 搬家公告頁：放在新的公開專案 ExosisterSurvivors（GitHub Pages），舊網址 bsnovayang.github.io/ExosisterSurvivors 打開就是這一頁
+     跟舊遊戲同一個網址，讀得到舊存檔：有存檔就顯示存檔碼讓玩家複製（格式同 game/meta.js 的 exportCode），沒有就自動前往 itch.io -->
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>驅魔修女倖存者 已搬家到 itch.io</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%2306061a%22/%3E%3Cpath d=%22M7 2h2v4h4v2H9v6H7V8H3V6h4z%22 fill=%22%23f0c850%22/%3E%3C/svg%3E">
+<style>
+  :root { --gold: #e0c060; --text: #e6e3f0; --muted: #b8b4cc; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 50% 0%, #241a3a, #0c0a18 70%); color: var(--text);
+    font: 15px/1.7 "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif; display: flex; justify-content: center; padding: 32px 16px; }
+  main { width: 100%; max-width: 560px; }
+  h1 { margin: 0 0 4px; font-size: 26px; color: var(--gold); letter-spacing: 2px; text-align: center; }
+  .en { color: var(--muted); font-size: 13px; text-align: center; margin: 0 0 22px; }
+  .box { background: #1e1e29ee; border: 1px solid #ffffff22; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .step { color: var(--gold); font-weight: bold; margin: 0 0 6px; }
+  textarea { width: 100%; background: #14141c; color: var(--text); border: 1px solid #e0c06066; border-radius: 8px; padding: 8px 10px; font: 12px/1.4 monospace; resize: vertical; word-break: break-all; }
+  .btn { display: inline-block; margin-top: 10px; background: #2a2a38; color: var(--text); border: 1px solid #ffffff33; border-radius: 8px; padding: 9px 22px; font: inherit; font-size: 16px; cursor: pointer; text-decoration: none; }
+  .btn.primary { background: #8a6a1e; border-color: var(--gold); color: #fff; }
+  .center { text-align: center; }
+  .muted { color: var(--muted); font-size: 13px; }
+  ol { margin: 6px 0 0; padding-left: 22px; }
+  #copied { color: #8affc8; margin-left: 10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>驅魔修女倖存者 搬家了！</h1>
+  <p class="en">Exosister Survivors has moved to itch.io</p>
+
+  <div class="box" id="has-save" hidden>
+    <p class="step">① 先複製你的存檔碼</p>
+    <div class="muted">這是你在舊網址的進度（通關、DP、牌組、永久強化、圖鑑）。</div>
+    <textarea id="code" rows="4" readonly></textarea>
+    <button class="btn primary" id="copy">複製存檔碼</button><span id="copied" hidden>已複製！</span>
+    <p class="step" style="margin-top:18px">② 到 itch.io 匯入</p>
+    <ol>
+      <li>按下面的按鈕打開 itch.io，點「Run game」開始遊戲</li>
+      <li>標題畫面 →「設定」→「匯入存檔」</li>
+      <li>貼上存檔碼，按「確定匯入」</li>
+    </ol>
+  </div>
+
+  <div class="box center" id="no-save" hidden>
+    <div>遊戲已經搬到 itch.io，<span id="count">5</span> 秒後自動前往……</div>
+  </div>
+
+  <div class="center"><a class="btn primary" id="go">前往 itch.io 玩遊戲</a></div>
+  <p class="muted center" style="margin-top:18px">有把遊戲加到手機主畫面的話，請在 itch.io 的頁面重新加一次。<br>這個舊網址之後只會顯示這一頁。</p>
+</main>
+<script>
+const ITCH = 'https://immortalnova.itch.io/exosistersurvivors'; // itch.io 的遊戲頁面
+const SAVE_KEYS = ['exo.cleared', 'exo.unlockC', 'exo.meta', 'exo.evo', 'exo.dex', 'exo.best'];
+document.getElementById('go').href = ITCH;
+const o = {};
+for (const k of SAVE_KEYS) { try { const v = localStorage.getItem(k); if (v !== null) o[k] = v; } catch (_) {} }
+if (Object.keys(o).length) {
+  document.getElementById('has-save').hidden = false;
+  const ta = document.getElementById('code');
+  ta.value = 'EXO1:' + btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  document.getElementById('copy').onclick = () => {
+    const done = () => { document.getElementById('copied').hidden = false; };
+    ta.select();
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, () => { if (document.execCommand('copy')) done(); });
+    else if (document.execCommand('copy')) done();
+  };
+} else {
+  // 沒玩過（或沒有存檔）：倒數後直接過去
+  document.getElementById('no-save').hidden = false;
+  let n = 5;
+  const tick = setInterval(() => { n--; document.getElementById('count').textContent = n; if (n <= 0) { clearInterval(tick); location.href = ITCH; } }, 1000);
+}
+</script>
+</body>
+</html>
